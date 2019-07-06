@@ -2,7 +2,7 @@ const router = require('express').Router();
 const Student = require('../db/models/students');
 const Test = require('../db/models/tests');
 
-router.get('/:studentId', function(req, res, next) {
+router.get('/:studentId', function (req, res, next) {
   Student.findById(req.params.studentId)
     .then(student => {
       if (!student) return res.sendStatus(404);
@@ -11,13 +11,22 @@ router.get('/:studentId', function(req, res, next) {
     .catch(next);
 });
 
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
   Student.findAll({ include: { all: true } }).then(students =>
     res.json(students)
   );
 });
 
-router.put('/:id', function(req, res, next) {
+router.post('/', async (req, res, next) => {
+  try {
+    const newStudent = await Student.create(req.body);
+    res.send(newStudent)
+  } catch (error) {
+    next(error)
+  }
+})
+
+router.put('/:id', function (req, res, next) {
   Student.update(req.body, {
     where: {
       id: req.params.id,
@@ -28,7 +37,7 @@ router.put('/:id', function(req, res, next) {
     .catch(next);
 });
 
-router.delete('/:id', function(req, res, next) {
+router.delete('/:id', function (req, res, next) {
   Student.destroy({
     where: {
       id: req.params.id,
